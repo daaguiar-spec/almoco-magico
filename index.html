@@ -161,7 +161,7 @@ function render(c){
   $('btnCal').href=`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Almoço Mágico · '+c.ed)}&dates=${st}/${en}&ctz=America/Fortaleza&location=${encodeURIComponent(c.local+', '+c.end)}&details=${encodeURIComponent('Com Daniel Donato, especialista em Cultura Disney.')}`;
   $('btnMap').href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(c.local+', '+c.end);
   const tel=(c.tel||'').replace(/\D/g,''),full=tel&&!tel.startsWith('55')?'55'+tel:tel;
-  const msg=`Olá${c.por?' '+first(c.por):''}! Aqui é ${c.n||'[seu nome]'} e confirmo minha presença no Almoço Mágico (${c.ed}), dia ${fmtData(c.data).split(' ·')[0]} às ${c.hora.replace(':','h')}. ✨`;
+  const msg=`Olá! Aqui é ${c.n||'[seu nome]'} e confirmo minha presença no Almoço Mágico (${c.ed}), dia ${fmtData(c.data).split(' ·')[0]} às ${c.hora.replace(':','h')}. ✨`;
   $('btnConf').href=(full?`https://wa.me/${full}`:'https://wa.me/')+'?text='+encodeURIComponent(msg);
   $('by').textContent=c.por?`A confirmação vai direto para o WhatsApp de ${c.por}${tel?' ('+c.tel+')':''}.`:'';
   $('btnConf').onclick=()=>{$('tkName').textContent=c.n||'Convidado(a)';$('tkInfo').textContent=`${c.ed.toUpperCase()} · ${fmtData(c.data).split(' ·')[0].toUpperCase()} · ${c.hora.replace(':','H')}`;$('ticket').style.display='block';setTimeout(()=>$('ticket').scrollIntoView({behavior:'smooth'}),300)};
