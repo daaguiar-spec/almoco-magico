@@ -119,7 +119,9 @@ input,textarea{width:100%;padding:11px;border-radius:10px;border:1px solid #e8c4
     <label>Seu WhatsApp (com DDD) — recebe as confirmações</label><input id="gTel" placeholder="85 99999-9999" inputmode="tel">
   </div>
   <div class="card"><h3>Convidados</h3>
-    <label>Um nome por linha</label><textarea id="gNomes" rows="5" placeholder="João Silva&#10;Ana Souza"></textarea>
+    <div style="background:#e8c46a22;border:1px solid var(--gold2);border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.5;color:#f3e5c5;margin-bottom:6px">👥 Convide várias pessoas de uma vez. Escreva <b>um nome por linha</b> (aperte Enter para pular de linha). Cada convidado recebe o próprio link personalizado.</div>
+    <label>Nomes dos convidados</label><textarea id="gNomes" rows="5" placeholder="João Silva&#10;Ana Souza&#10;Carlos Mendes"></textarea>
+    <div id="gCount" style="text-align:right;font-size:12px;color:var(--gold);margin-top:6px">0 convidados</div>
     <button class="btn main" id="gGo" style="animation:none">Gerar links</button>
     <div class="list" id="gList"></div>
     <p class="note">Cada link abre o convite já com o nome do convidado, e as confirmações chegam no seu WhatsApp.</p>
@@ -171,11 +173,13 @@ function render(c){
 function esc(s){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
 $('pass').onclick=()=>{$('pass').classList.add('open');setTimeout(()=>{$('intro').style.display='none';$('main').style.display='block';window.scrollTo(0,0)},700)};
 let EV=Object.assign({},DEF);
+function cnt(){const n=$('gNomes').value.split('\n').filter(x=>x.trim()).length;$('gCount').textContent=n+(n===1?' convidado':' convidados');$('gGo').textContent=n>1?`Gerar ${n} links`:'Gerar link';return n}
+$('gNomes').addEventListener('input',cnt);
 function gerador(){
   $('intro').style.display='none';$('main').style.display='none';$('admin').style.display='none';$('gerar').style.display='block';
   $('sum').innerHTML=`<b>${esc(EV.ed)}</b><br>${esc(fmtData(EV.data))} · ${esc(EV.hora.replace(':','h'))}<br>${esc(EV.local)}<br><span style="font-size:12px;opacity:.8">${esc(EV.end)}</span>`;
   const s=store.get('am_consultor')||{};$('gPor').value=s.por||'';$('gTel').value=s.tel||'';
-  $('gPor').oninput=$('gTel').oninput=save;
+  $('gPor').oninput=$('gTel').oninput=save;cnt();
 }
 function cfg(){return{por:$('gPor').value.trim(),tel:$('gTel').value.trim()}}
 function save(){store.set('am_consultor',cfg())}
@@ -187,7 +191,7 @@ $('gGo').onclick=async()=>{save();const c=cfg();if(!c.por||!c.tel){$('gList').in
     w.href='https://wa.me/?text='+encodeURIComponent(`${first(n)}, separei um Passaporte Cortesia com seu nome para o Almoço Mágico ✨ Abra aqui: ${url}`);
     const b=document.createElement('button');b.textContent='Copiar link';b.onclick=()=>{navigator.clipboard.writeText(url).then(()=>b.textContent='Copiado ✓').catch(()=>{b.textContent='Selecione abaixo';d.insertAdjacentHTML('afterend',`<div class="out">${url}</div>`)})};
     const g=document.createElement('span');g.style.display='flex';g.style.gap='6px';g.append(b,w);d.append(g);$('gList').append(d)}
-  $('gGo').disabled=false;$('gGo').textContent='Gerar links'};
+  $('gGo').disabled=false;cnt()};
 function adminView(){['intro','main','gerar'].forEach(i=>$(i).style.display='none');$('admin').style.display='block';
   try{$('aPass').value=sessionStorage.getItem('am_pass')||''}catch(e){}
   $('aEd').value=EV.ed;$('aData').value=EV.data;$('aHora').value=EV.hora;$('aLocal').value=EV.local;$('aEnd').value=EV.end;}
