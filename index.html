@@ -5,22 +5,22 @@
 <style>
 :root{--vin:#5e0f12;--vin2:#2a0507;--gold:#e8c46a;--gold2:#b8862b;--cream:#fbf5e8}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Montserrat,sans-serif;background:radial-gradient(ellipse at top,#4a0b0e,#140203 70%);color:#fff;min-height:100vh;overflow-x:hidden}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}body{font-family:Montserrat,sans-serif;background:radial-gradient(ellipse at top,#4a0b0e,#140203 70%);color:#fff;min-height:100vh;overflow-x:hidden}
 .sparks{position:fixed;inset:0;pointer-events:none;z-index:0}
 .sparks i{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);animation:tw 3s infinite ease-in-out}
 @keyframes tw{0%,100%{opacity:0;transform:scale(.5)}50%{opacity:1;transform:scale(1.2)}}
 .wrap{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:28px 18px 60px}
 .gold{background:linear-gradient(180deg,#fff3c4,#e8c46a 45%,#a8741f);-webkit-background-clip:text;background-clip:text;color:transparent}
 /* envelope */
-#intro{min-height:88vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:22px}
-.pass{width:280px;height:380px;border-radius:14px;background:linear-gradient(145deg,#7a1418,#3b0709);border:2px solid var(--gold2);box-shadow:0 20px 60px #0008,inset 0 0 40px #0006;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;cursor:pointer;transition:transform .8s cubic-bezier(.6,-0.3,.4,1.4),opacity .8s;animation:float 3s ease-in-out infinite}
+#intro{min-height:100vh;min-height:100svh;padding:20px 0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:22px}
+.pass{width:min(68vw,270px);height:auto;aspect-ratio:3/4;padding:18px 10px;border-radius:14px;background:linear-gradient(145deg,#7a1418,#3b0709);border:2px solid var(--gold2);box-shadow:0 20px 60px #0008,inset 0 0 40px #0006;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;cursor:pointer;transition:transform .8s cubic-bezier(.6,-0.3,.4,1.4),opacity .8s;animation:float 3s ease-in-out infinite}
 @keyframes float{50%{transform:translateY(-8px)}}
 .pass.open{transform:rotateY(90deg) scale(1.2);opacity:0}
 .pass .t{font-family:Cinzel;letter-spacing:4px;font-size:13px;color:var(--gold)}
-.pass .pt{font-family:Cinzel;font-weight:800;font-size:40px;line-height:1}.pass .pt2{font-family:Cinzel;font-weight:800;font-size:44px;line-height:1;color:#fff;margin-top:-8px}.cloche{filter:drop-shadow(0 0 12px #e8c46a88);animation:sh 2.4s ease-in-out infinite}.trail{animation:dash 3s linear infinite}@keyframes dash{to{stroke-dashoffset:-32}}.star{transform-box:fill-box;transform-origin:center;animation:st 2.4s ease-in-out infinite;filter:drop-shadow(0 0 6px #fff3c4)}@keyframes st{50%{transform:scale(1.25) rotate(20deg)}}.tw1,.tw2{animation:tw 2s infinite}.tw2{animation-delay:-1s}@keyframes sh{50%{filter:drop-shadow(0 0 22px #e8c46acc)}}
+.pass .pt{font-family:Cinzel;font-weight:800;font-size:clamp(26px,9vw,38px);line-height:1}.pass .pt2{font-family:Cinzel;font-weight:800;font-size:clamp(28px,10vw,42px);line-height:1;color:#fff;margin-top:-8px}.cloche{filter:drop-shadow(0 0 12px #e8c46a88);animation:sh 2.4s ease-in-out infinite}.trail{animation:dash 3s linear infinite}@keyframes dash{to{stroke-dashoffset:-32}}.star{transform-box:fill-box;transform-origin:center;animation:st 2.4s ease-in-out infinite;filter:drop-shadow(0 0 6px #fff3c4)}@keyframes st{50%{transform:scale(1.25) rotate(20deg)}}.tw1,.tw2{animation:tw 2s infinite}.tw2{animation-delay:-1s}@keyframes sh{50%{filter:drop-shadow(0 0 22px #e8c46acc)}}
 .hint{font-size:13px;color:#e9d9b8;opacity:.8;animation:pulse 1.6s infinite}
 @keyframes pulse{50%{opacity:.3}}
-.hello{font-size:15px;color:#f3e5c5}.hello b{font-size:22px;display:block;color:var(--gold);margin-top:4px;font-family:Cinzel}
+.hello{font-size:16px;color:#f3e5c5}.hello b{font-size:22px;display:block;color:var(--gold);margin-top:4px;font-family:Cinzel}
 /* main */
 #main{display:none;animation:in 1s ease both}
 @keyframes in{from{opacity:0;transform:translateY(20px)}}
@@ -78,7 +78,7 @@ input,textarea{width:100%;padding:11px;border-radius:10px;border:1px solid #e8c4
 
 <section id="intro">
   <div class="hello" id="hello">Você recebeu um</div>
-  <div class="pass" id="pass"><svg class="cloche" viewBox="0 -34 120 124" width="120" height="124"><defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3c4"/><stop offset=".5" stop-color="#e8c46a"/><stop offset="1" stop-color="#a8741f"/></linearGradient></defs><circle cx="60" cy="18" r="5" fill="url(#gg)"/><path d="M16 66 A44 44 0 0 1 104 66 Z" fill="url(#gg)"/><path d="M34 44 A30 30 0 0 1 52 30" stroke="#fff8" stroke-width="3" fill="none" stroke-linecap="round"/><rect x="8" y="68" width="104" height="6" rx="3" fill="url(#gg)"/><g fill="#fff3c4"><path d="M100 14l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/><path d="M18 22l1.4 4 4 1.4-4 1.4-1.4 4-1.4-4-4-1.4 4-1.4z"/><path d="M110 40l1 3 3 1-3 1-1 3-1-3-3-1 3-1z"/></g><path class="trail" d="M60 12 C 40 2, 44 -14, 60 -14 C 76 -14, 78 -26, 62 -30" stroke="url(#gg)" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="3 5"/><g class="star"><path d="M62 -34l3.2 8.6 8.6 3.2-8.6 3.2-3.2 8.6-3.2-8.6-8.6-3.2 8.6-3.2z" fill="#fff3c4"/></g><circle class="tw1" cx="44" cy="-6" r="1.6" fill="#fff3c4"/><circle class="tw2" cx="76" cy="-18" r="1.3" fill="#fff3c4"/><circle class="tw1" cx="70" cy="-2" r="1.1" fill="#fff3c4"/></svg><div class="pt gold">ALMOÇO</div><div class="pt2">MÁGICO</div><div class="t" style="font-size:10px;opacity:.8;margin-top:6px">PASSAPORTE CORTESIA</div></div>
+  <div class="pass" id="pass"><svg class="cloche" viewBox="0 -34 120 124" style="width:min(30vw,110px);height:auto"><defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff3c4"/><stop offset=".5" stop-color="#e8c46a"/><stop offset="1" stop-color="#a8741f"/></linearGradient></defs><circle cx="60" cy="18" r="5" fill="url(#gg)"/><path d="M16 66 A44 44 0 0 1 104 66 Z" fill="url(#gg)"/><path d="M34 44 A30 30 0 0 1 52 30" stroke="#fff8" stroke-width="3" fill="none" stroke-linecap="round"/><rect x="8" y="68" width="104" height="6" rx="3" fill="url(#gg)"/><g fill="#fff3c4"><path d="M100 14l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/><path d="M18 22l1.4 4 4 1.4-4 1.4-1.4 4-1.4-4-4-1.4 4-1.4z"/><path d="M110 40l1 3 3 1-3 1-1 3-1-3-3-1 3-1z"/></g><path class="trail" d="M60 12 C 40 2, 44 -14, 60 -14 C 76 -14, 78 -26, 62 -30" stroke="url(#gg)" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="3 5"/><g class="star"><path d="M62 -34l3.2 8.6 8.6 3.2-8.6 3.2-3.2 8.6-3.2-8.6-8.6-3.2 8.6-3.2z" fill="#fff3c4"/></g><circle class="tw1" cx="44" cy="-6" r="1.6" fill="#fff3c4"/><circle class="tw2" cx="76" cy="-18" r="1.3" fill="#fff3c4"/><circle class="tw1" cx="70" cy="-2" r="1.1" fill="#fff3c4"/></svg><div class="pt gold">ALMOÇO</div><div class="pt2">MÁGICO</div><div class="t" style="font-size:10px;opacity:.8;margin-top:6px">PASSAPORTE CORTESIA</div></div>
   <div class="hint">Toque no passaporte para abrir</div>
 </section>
 
