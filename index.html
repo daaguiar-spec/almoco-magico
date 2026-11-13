@@ -129,7 +129,7 @@ input,textarea{width:100%;padding:11px;border-radius:10px;border:1px solid #e8c4
   <h1 style="margin-top:0"><span class="a gold" style="font-size:34px">ADMIN</span><span class="b" style="font-size:20px;font-family:Montserrat;font-weight:500">Dados da edição</span></h1>
   <div class="card"><h3>Acesso</h3><label>Senha de administrador</label><input type="password" id="aPass"></div>
   <div class="card"><h3>Edição atual</h3>
-    <label>Edição</label><input id="aEd" placeholder="1ª Edição">
+    <label>Edição</label><input id="aEd" placeholder="5ª Edição">
     <div class="two"><div><label>Data</label><input type="date" id="aData"></div><div><label>Horário</label><input type="time" id="aHora"></div></div>
     <label>Local</label><input id="aLocal">
     <label>Endereço (use " - " antes do bairro)</label><input id="aEnd">
@@ -139,10 +139,12 @@ input,textarea{width:100%;padding:11px;border-radius:10px;border:1px solid #e8c4
 </section>
 </div>
 <script>
-const DEF={ed:"1ª Edição",data:"2026-11-26",hora:"11:00",local:"Forneria Coriolano",end:"R. Osvaldo Cruz, 2786 - Dionísio Torres, Fortaleza - CE",por:"",tel:"",n:""};
+const DEF={ed:"5ª Edição",data:"2026-11-26",hora:"11:00",local:"Forneria Coriolano",end:"R. Osvaldo Cruz, 2786 - Dionísio Torres, Fortaleza - CE",por:"",tel:"",n:""};
 const $=id=>document.getElementById(id);
 const MES=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
 const enc=o=>Array.from(new TextEncoder().encode(JSON.stringify(o))).map(b=>b.toString(16).padStart(2,'0')).join('');
+const enc2=(n,p,tel)=>{const b=new TextEncoder().encode([n,p,(tel||'').replace(/\D/g,'')].join('|'));let s='';b.forEach(x=>s+=String.fromCharCode(x));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')};
+const dec2=h=>{try{const s=atob(h.replace(/-/g,'+').replace(/_/g,'/'));const p=new TextDecoder().decode(Uint8Array.from(s,c=>c.charCodeAt(0))).split('|');if(p.length!==3)return null;return{n:p[0],por:p[1],tel:p[2]}}catch(e){return null}};
 const dec=h=>{try{return JSON.parse(new TextDecoder().decode(new Uint8Array(h.match(/../g).map(x=>parseInt(x,16)))))}catch(e){return null}};
 const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 for(let i=0;i<40;i++){const s=document.createElement('i');s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';s.style.animationDelay=Math.random()*3+'s';$('sparks').appendChild(s)}
@@ -178,8 +180,8 @@ function gerador(){
 function cfg(){return{por:$('gPor').value.trim(),tel:$('gTel').value.trim()}}
 function save(){store.set('am_consultor',cfg())}
 $('gGo').onclick=()=>{save();const c=cfg();if(!c.por||!c.tel){$('gList').innerHTML='<p class="note" style="color:#ffb4a0">Preencha seu nome e WhatsApp antes de gerar.</p>';return}
-  const base=location.href.split('#')[0];$('gList').innerHTML='';
-  $('gNomes').value.split('\n').map(x=>x.trim()).filter(Boolean).forEach(n=>{const url=base+'#c-'+enc({n,por:c.por,tel:c.tel});const d=document.createElement('div');d.innerHTML=`<span>${esc(n)}</span>`;
+  const base=location.origin+'/';$('gList').innerHTML='';
+  $('gNomes').value.split('\n').map(x=>x.trim()).filter(Boolean).forEach(n=>{const url=base+'#'+enc2(n,c.por,c.tel);const d=document.createElement('div');d.innerHTML=`<span>${esc(n)}</span>`;
     const w=document.createElement('a');w.textContent='WhatsApp';w.target='_blank';w.rel='noopener';w.style.cssText='color:#3a0a0c;background:#e8c46a;border-radius:6px;padding:5px 8px;font-size:11px;text-decoration:none';
     w.href='https://wa.me/?text='+encodeURIComponent(`${first(n)}, separei um Passaporte Cortesia com seu nome para o Almoço Mágico ✨ Abra aqui: ${url}`);
     const b=document.createElement('button');b.textContent='Copiar link';b.onclick=()=>{navigator.clipboard.writeText(url).then(()=>b.textContent='Copiado ✓').catch(()=>{b.textContent='Selecione abaixo';d.insertAdjacentHTML('afterend',`<div class="out">${url}</div>`)})};
@@ -196,7 +198,7 @@ $('aSave').onclick=async()=>{const m=$('aMsg');m.style.color='#e9d9b8';m.textCon
   }catch(e){m.style.color='#ffb4a0';m.textContent=e.message}};
 function route(){const h=location.hash.slice(1);if(h==='admin')return adminView();$('admin').style.display='none';
   if(h==='consultor'||h==='gerar')return gerador();
-  let g={};if(h.startsWith('c-')){const o=dec(h.slice(2));if(o)g={n:o.n||'',por:o.por||'',tel:o.tel||''}}
+  let g={};if(h.startsWith('c-')){const o=dec(h.slice(2));if(o)g={n:o.n||'',por:o.por||'',tel:o.tel||''}}else if(h){const o=dec2(h);if(o)g=o}
   const c=Object.assign({},EV,{n:'',por:'',tel:''},g);render(c);
   const end=new Date(`${EV.data}T${EV.hora}:00-03:00`).getTime()+4*3600e3;
   $('past').style.display=Date.now()>end?'block':'none';
