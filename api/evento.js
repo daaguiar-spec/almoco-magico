@@ -3,7 +3,7 @@
 const URL_ = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
 const TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
 const KEY = 'almoco-magico:evento';
-const DEF = { ed: '1ª Edição', data: '2026-11-26', hora: '11:00', local: 'Forneria Coriolano', end: 'R. Osvaldo Cruz, 2786 - Dionísio Torres, Fortaleza - CE' };
+const DEF = { ed: '5ª Edição', data: '2026-11-26', hora: '11:00', local: 'Forneria Coriolano', end: 'R. Osvaldo Cruz, 2786 - Dionísio Torres, Fortaleza - CE' };
 
 async function kv(path, body) {
   const r = await fetch(`${URL_}/${path}`, { method: body === undefined ? 'GET' : 'POST', headers: { Authorization: `Bearer ${TOKEN}` }, body });
