@@ -152,7 +152,7 @@ function first(n){return (n||'').trim().split(/\s+/)[0]}
 function fmtData(d){const [y,m,dd]=d.split('-').map(Number);const w=new Date(y,m-1,dd).toLocaleDateString('pt-BR',{weekday:'long'});return `${dd} de ${MES[m-1]} · ${w}`}
 function render(c){
   $('main').style.display='none';$('gerar').style.display='none';$('intro').style.display='flex';
-  if(c.n)$('hello').innerHTML=`Olá,<b>${esc(c.n)}</b>`;else $('hello').textContent='Você recebeu um';
+  if(c.n)$('hello').innerHTML=`Olá,<b>${esc(c.n)}</b><span style="display:block;margin-top:10px">você recebeu um</span>`;else $('hello').textContent='Você recebeu um';
   $('ed').textContent=c.ed;
   $('invite').innerHTML=c.n?`<span class="nm">${esc(c.n)},</span>você é meu convidado especial! Vamos viver juntos uma experiência que vai encantar os seus negócios. Te espero no Almoço Mágico.${c.por?`<span class="sig2">${esc(c.por)}</span>`:''}<br><br>Um encontro reservado a empresários e líderes que desejam ampliar sua visão sobre negócios, trocar experiências e descobrir como os princípios da <b>Cultura Disney</b> podem transformar a experiência do cliente e gerar resultados extraordinários.`:`Um encontro reservado a empresários e líderes que desejam ampliar sua visão sobre negócios, trocar experiências e descobrir como os princípios da <b>Cultura Disney</b> podem transformar a experiência do cliente e gerar resultados extraordinários.`;
   {const p=fmtData(c.data).split(' · ');$('iData').textContent=p[0];$('iHora').innerHTML=p[1].charAt(0).toUpperCase()+p[1].slice(1)+'<br>às '+c.hora.replace(':','h')}
