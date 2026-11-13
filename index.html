@@ -125,6 +125,18 @@ input,textarea{width:100%;padding:11px;border-radius:10px;border:1px solid #e8c4
     <p class="note">Cada link abre o convite já com o nome do convidado, e as confirmações chegam no seu WhatsApp.</p>
   </div>
 </section>
+<section id="admin" style="display:none">
+  <h1 style="margin-top:0"><span class="a gold" style="font-size:34px">ADMIN</span><span class="b" style="font-size:20px;font-family:Montserrat;font-weight:500">Dados da edição</span></h1>
+  <div class="card"><h3>Acesso</h3><label>Senha de administrador</label><input type="password" id="aPass"></div>
+  <div class="card"><h3>Edição atual</h3>
+    <label>Edição</label><input id="aEd" placeholder="1ª Edição">
+    <div class="two"><div><label>Data</label><input type="date" id="aData"></div><div><label>Horário</label><input type="time" id="aHora"></div></div>
+    <label>Local</label><input id="aLocal">
+    <label>Endereço (use " - " antes do bairro)</label><input id="aEnd">
+    <button class="btn main" id="aSave" style="animation:none">Salvar</button>
+    <p class="note center" id="aMsg"></p>
+  </div>
+</section>
 </div>
 <script>
 const DEF={ed:"1ª Edição",data:"2026-11-26",hora:"11:00",local:"Forneria Coriolano",end:"R. Osvaldo Cruz, 2786 - Dionísio Torres, Fortaleza - CE",por:"",tel:"",n:""};
@@ -158,7 +170,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','
 $('pass').onclick=()=>{$('pass').classList.add('open');setTimeout(()=>{$('intro').style.display='none';$('main').style.display='block';window.scrollTo(0,0)},700)};
 let EV=Object.assign({},DEF);
 function gerador(){
-  $('intro').style.display='none';$('main').style.display='none';$('gerar').style.display='block';
+  $('intro').style.display='none';$('main').style.display='none';$('admin').style.display='none';$('gerar').style.display='block';
   $('sum').innerHTML=`<b>${esc(EV.ed)}</b><br>${esc(fmtData(EV.data))} · ${esc(EV.hora.replace(':','h'))}<br>${esc(EV.local)}<br><span style="font-size:12px;opacity:.8">${esc(EV.end)}</span>`;
   const s=store.get('am_consultor')||{};$('gPor').value=s.por||'';$('gTel').value=s.tel||'';
   $('gPor').oninput=$('gTel').oninput=save;
@@ -172,7 +184,17 @@ $('gGo').onclick=()=>{save();const c=cfg();if(!c.por||!c.tel){$('gList').innerHT
     w.href='https://wa.me/?text='+encodeURIComponent(`${first(n)}, separei um Passaporte Cortesia com seu nome para o Almoço Mágico ✨ Abra aqui: ${url}`);
     const b=document.createElement('button');b.textContent='Copiar link';b.onclick=()=>{navigator.clipboard.writeText(url).then(()=>b.textContent='Copiado ✓').catch(()=>{b.textContent='Selecione abaixo';d.insertAdjacentHTML('afterend',`<div class="out">${url}</div>`)})};
     const g=document.createElement('span');g.style.display='flex';g.style.gap='6px';g.append(b,w);d.append(g);$('gList').append(d)})};
-function route(){const h=location.hash.slice(1);
+function adminView(){['intro','main','gerar'].forEach(i=>$(i).style.display='none');$('admin').style.display='block';
+  try{$('aPass').value=sessionStorage.getItem('am_pass')||''}catch(e){}
+  $('aEd').value=EV.ed;$('aData').value=EV.data;$('aHora').value=EV.hora;$('aLocal').value=EV.local;$('aEnd').value=EV.end;}
+$('aSave').onclick=async()=>{const m=$('aMsg');m.style.color='#e9d9b8';m.textContent='Salvando…';
+  const body={ed:$('aEd').value,data:$('aData').value,hora:$('aHora').value,local:$('aLocal').value,end:$('aEnd').value};
+  try{const r=await fetch('/api/evento',{method:'POST',headers:{'Content-Type':'application/json','x-admin-password':$('aPass').value},body:JSON.stringify(body)});
+    const j=await r.json();if(!r.ok)throw new Error(j.error||'Erro');
+    try{sessionStorage.setItem('am_pass',$('aPass').value)}catch(e){}
+    EV=Object.assign({},DEF,j);m.style.color='#9be3a8';m.textContent='Salvo! ✓ Todos os convites já mostram os novos dados.';
+  }catch(e){m.style.color='#ffb4a0';m.textContent=e.message}};
+function route(){const h=location.hash.slice(1);if(h==='admin')return adminView();$('admin').style.display='none';
   if(h==='consultor'||h==='gerar')return gerador();
   let g={};if(h.startsWith('c-')){const o=dec(h.slice(2));if(o)g={n:o.n||'',por:o.por||'',tel:o.tel||''}}
   const c=Object.assign({},EV,{n:'',por:'',tel:''},g);render(c);
@@ -180,5 +202,5 @@ function route(){const h=location.hash.slice(1);
   $('past').style.display=Date.now()>end?'block':'none';
   if(Date.now()>end){$('btnConf').style.display='none';$('by').style.display='none'}}
 addEventListener('hashchange',route);
-fetch('evento.json?v='+Date.now()).then(r=>r.ok?r.json():{}).catch(()=>({})).then(j=>{EV=Object.assign({},DEF,j);route()});
+fetch('/api/evento').then(r=>{if(!r.ok)throw 0;return r.json()}).catch(()=>fetch('evento.json?v='+Date.now()).then(r=>r.ok?r.json():{})).catch(()=>({})).then(j=>{EV=Object.assign({},DEF,j);route()});
 </script></body></html>
