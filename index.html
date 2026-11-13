@@ -30,7 +30,7 @@ h1 .a{font-size:clamp(54px,15vw,70px);display:block}h1 .b{font-size:clamp(62px,1
 .tag{text-align:center;font-size:10.5px;letter-spacing:3px;color:#e9d9b8}
 .center{text-align:center}
 .invite{margin:26px 0;text-align:center;font-size:15px;line-height:1.6;color:#f3e5c5}
-.invite .nm{font-family:'Great Vibes';font-size:44px;color:var(--gold);line-height:1.1;display:block}
+.invite .sig2{font-family:'Great Vibes';font-size:30px;color:var(--gold);display:block;margin-top:10px}.invite .nm{font-family:'Great Vibes';font-size:44px;color:var(--gold);line-height:1.1;display:block}
 .speaker{display:flex;gap:14px;align-items:center;background:#0004;border:1px solid #e8c46a33;border-radius:16px;padding:12px;margin:18px 0}
 .speaker img{width:96px;height:120px;object-fit:cover;object-position:top;border-radius:12px;border:1px solid var(--gold2)}
 .speaker .sig{white-space:nowrap;font-family:'Great Vibes';font-size:30px;color:var(--gold);line-height:1}
@@ -154,7 +154,7 @@ function render(c){
   $('main').style.display='none';$('gerar').style.display='none';$('intro').style.display='flex';
   if(c.n)$('hello').innerHTML=`Olá,<b>${esc(c.n)}</b>`;else $('hello').textContent='Você recebeu um';
   $('ed').textContent=c.ed;
-  $('invite').innerHTML=c.n?`${c.por?`<b>${esc(c.por)}</b> tem a alegria de convidar`:'Temos a alegria de convidar'}<span class="nm">${esc(c.n)}</span>para o Almoço Mágico.<br><br>Um encontro reservado a empresários e líderes que desejam ampliar sua visão sobre negócios, trocar experiências e descobrir como os princípios da <b>Cultura Disney</b> podem transformar a experiência do cliente e gerar resultados extraordinários.`:`Um encontro reservado a empresários e líderes que desejam ampliar sua visão sobre negócios, trocar experiências e descobrir como os princípios da <b>Cultura Disney</b> podem transformar a experiência do cliente e gerar resultados extraordinários.`;
+  $('invite').innerHTML=c.n?`<span class="nm">${esc(c.n)},</span>você é meu convidado especial! Vamos viver juntos uma experiência que vai encantar os seus negócios. Te espero no Almoço Mágico.${c.por?`<span class="sig2">${esc(c.por)}</span>`:''}<br><br>Um encontro reservado a empresários e líderes que desejam ampliar sua visão sobre negócios, trocar experiências e descobrir como os princípios da <b>Cultura Disney</b> podem transformar a experiência do cliente e gerar resultados extraordinários.`:`Um encontro reservado a empresários e líderes que desejam ampliar sua visão sobre negócios, trocar experiências e descobrir como os princípios da <b>Cultura Disney</b> podem transformar a experiência do cliente e gerar resultados extraordinários.`;
   {const p=fmtData(c.data).split(' · ');$('iData').textContent=p[0];$('iHora').innerHTML=p[1].charAt(0).toUpperCase()+p[1].slice(1)+'<br>às '+c.hora.replace(':','h')}
   $('iLocal').textContent=c.local;{const e=esc(c.end),i=e.indexOf(' - ');$('iEnd').innerHTML=i>0?e.slice(0,i)+'<br>'+e.slice(i+3):e}
   const dt=c.data.replace(/-/g,''),[H,M]=c.hora.split(':').map(Number),st=`${dt}T${String(H).padStart(2,'0')}${String(M).padStart(2,'0')}00`,en=`${dt}T${String(H+3).padStart(2,'0')}${String(M).padStart(2,'0')}00`;
