@@ -69,6 +69,7 @@ label{display:block;font-size:12px;color:#e9d9b8;margin:10px 0 4px}
 input,textarea{width:100%;padding:11px;border-radius:10px;border:1px solid #e8c46a55;background:#1a0304;color:#fff;font:inherit;font-size:14px}
 .out{word-break:break-all;font-size:12px;background:#000a;padding:10px;border-radius:8px;margin-top:10px;color:#e9d9b8;min-height:20px}
 .note{font-size:11.5px;color:#bba;line-height:1.5;margin-top:8px}
+.sum{font-size:14px;line-height:1.7;color:#f3e5c5}.sum b{color:var(--gold)}.past{background:#e8c46a22;border:1px solid var(--gold2);border-radius:12px;padding:12px;text-align:center;font-size:13px;color:#f3e5c5;margin:14px 0}
 .list div{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:12px;padding:6px 0;border-bottom:1px solid #fff1}
 .list button{background:var(--gold);border:0;border-radius:6px;padding:5px 8px;font-size:11px;cursor:pointer}
 </style></head><body>
@@ -86,6 +87,7 @@ input,textarea{width:100%;padding:11px;border-radius:10px;border:1px solid #e8c4
   <h1><span class="a gold">ALMOÇO</span><span class="b">MÁGICO</span></h1>
   <div class="tag">NEGÓCIOS • EXPERIÊNCIA<br>ENCANTAMENTO</div>
 
+  <div class="past" id="past" style="display:none">Esta edição já aconteceu. Fique de olho: em breve, novidades da próxima! ✨</div>
   <div class="invite" id="invite"></div>
 
   <div class="cd" id="cd"><div><b id="dd">0</b><span>DIAS</span></div><div><b id="hh">0</b><span>HORAS</span></div><div><b id="mm">0</b><span>MIN</span></div><div><b id="ss">0</b><span>SEG</span></div></div>
@@ -110,23 +112,17 @@ input,textarea{width:100%;padding:11px;border-radius:10px;border:1px solid #e8c4
 </section>
 
 <section id="gerar">
-  <h1 style="margin-top:0"><span class="a gold" style="font-size:34px">GERADOR</span><span class="b" style="font-size:20px;font-family:Montserrat;font-weight:500">de convites</span></h1>
-  <div class="card"><h3>1 · Dados da edição</h3>
-    <label>Edição</label><input id="gEd" placeholder="1ª Edição">
-    <div class="two"><div><label>Data</label><input type="date" id="gData"></div><div><label>Horário</label><input type="time" id="gHora"></div></div>
-    <label>Local</label><input id="gLocal">
-    <label>Endereço</label><input id="gEnd">
-    <p class="note">Esses dados ficam guardados neste navegador e vão dentro de cada link gerado. Para uma nova edição, é só trocar aqui.</p>
-  </div>
-  <div class="card"><h3>2 · Quem está convidando</h3>
-    <label>Seu nome</label><input id="gPor" placeholder="Ex.: Mariana Lima">
+  <h1 style="margin-top:0"><span class="a gold" style="font-size:34px">GERADOR</span><span class="b" style="font-size:20px;font-family:Montserrat;font-weight:500">Área do Consultor</span></h1>
+  <div class="card"><h3>Edição</h3><div class="sum" id="sum"></div><p class="note">Dados definidos pela organização.</p></div>
+  <div class="card"><h3>1 · Consultor(a)</h3>
+    <label>Seu nome (consultor)</label><input id="gPor" placeholder="Ex.: Mariana Lima">
     <label>Seu WhatsApp (com DDD) — recebe as confirmações</label><input id="gTel" placeholder="85 99999-9999" inputmode="tel">
   </div>
-  <div class="card"><h3>3 · Convidados</h3>
+  <div class="card"><h3>2 · Convidados</h3>
     <label>Um nome por linha</label><textarea id="gNomes" rows="5" placeholder="João Silva&#10;Ana Souza"></textarea>
     <button class="btn main" id="gGo" style="animation:none">Gerar links</button>
     <div class="list" id="gList"></div>
-    <p class="note">Cada link abre o convite já com o nome do convidado. Para os links funcionarem para outras pessoas, compartilhe esta página no claude.ai (botão Compartilhar) antes de enviar.</p>
+    <p class="note">Cada link abre o convite já com o nome do convidado, e as confirmações chegam no seu WhatsApp.</p>
   </div>
 </section>
 </div>
@@ -160,22 +156,29 @@ function render(c){
 }
 function esc(s){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
 $('pass').onclick=()=>{$('pass').classList.add('open');setTimeout(()=>{$('intro').style.display='none';$('main').style.display='block';window.scrollTo(0,0)},700)};
+let EV=Object.assign({},DEF);
 function gerador(){
   $('intro').style.display='none';$('main').style.display='none';$('gerar').style.display='block';
-  const s=Object.assign({},DEF,store.get('am_cfg')||{});
-  ['ed','data','hora','local','end','por','tel'].forEach(k=>{const el=$('g'+k[0].toUpperCase()+k.slice(1));el.value=s[k]||'';el.oninput=save});
+  $('sum').innerHTML=`<b>${esc(EV.ed)}</b><br>${esc(fmtData(EV.data))} · ${esc(EV.hora.replace(':','h'))}<br>${esc(EV.local)}<br><span style="font-size:12px;opacity:.8">${esc(EV.end)}</span>`;
+  const s=store.get('am_consultor')||{};$('gPor').value=s.por||'';$('gTel').value=s.tel||'';
+  $('gPor').oninput=$('gTel').oninput=save;
 }
-function cfg(){return{ed:$('gEd').value,data:$('gData').value,hora:$('gHora').value,local:$('gLocal').value,end:$('gEnd').value,por:$('gPor').value,tel:$('gTel').value}}
-function save(){store.set('am_cfg',cfg())}
-$('gGo').onclick=()=>{save();const base=location.href.split('#')[0],c=cfg();$('gList').innerHTML='';
-  $('gNomes').value.split('\n').map(x=>x.trim()).filter(Boolean).forEach(n=>{const url=base+'#c-'+enc(Object.assign({},c,{n}));const d=document.createElement('div');d.innerHTML=`<span>${esc(n)}</span>`;
+function cfg(){return{por:$('gPor').value.trim(),tel:$('gTel').value.trim()}}
+function save(){store.set('am_consultor',cfg())}
+$('gGo').onclick=()=>{save();const c=cfg();if(!c.por||!c.tel){$('gList').innerHTML='<p class="note" style="color:#ffb4a0">Preencha seu nome e WhatsApp antes de gerar.</p>';return}
+  const base=location.href.split('#')[0];$('gList').innerHTML='';
+  $('gNomes').value.split('\n').map(x=>x.trim()).filter(Boolean).forEach(n=>{const url=base+'#c-'+enc({n,por:c.por,tel:c.tel});const d=document.createElement('div');d.innerHTML=`<span>${esc(n)}</span>`;
     const w=document.createElement('a');w.textContent='WhatsApp';w.target='_blank';w.rel='noopener';w.style.cssText='color:#3a0a0c;background:#e8c46a;border-radius:6px;padding:5px 8px;font-size:11px;text-decoration:none';
-    w.href='https://wa.me/?text='+encodeURIComponent(`${first(n)}, separei um Passaporte Cortesia com seu nome para o Almoço Mágico ✈✨ Abra aqui: ${url}`);
+    w.href='https://wa.me/?text='+encodeURIComponent(`${first(n)}, separei um Passaporte Cortesia com seu nome para o Almoço Mágico ✨ Abra aqui: ${url}`);
     const b=document.createElement('button');b.textContent='Copiar link';b.onclick=()=>{navigator.clipboard.writeText(url).then(()=>b.textContent='Copiado ✓').catch(()=>{b.textContent='Selecione abaixo';d.insertAdjacentHTML('afterend',`<div class="out">${url}</div>`)})};
     const g=document.createElement('span');g.style.display='flex';g.style.gap='6px';g.append(b,w);d.append(g);$('gList').append(d)})};
 function route(){const h=location.hash.slice(1);
-  if(h==='gerar')return gerador();
-  if(h.startsWith('c-')){const o=dec(h.slice(2));if(o)return render(Object.assign({},DEF,o))}
-  render(Object.assign({},DEF,store.get('am_cfg')||{},{n:''}));}
-addEventListener('hashchange',route);route();
+  if(h==='consultor'||h==='gerar')return gerador();
+  let g={};if(h.startsWith('c-')){const o=dec(h.slice(2));if(o)g={n:o.n||'',por:o.por||'',tel:o.tel||''}}
+  const c=Object.assign({},EV,{n:'',por:'',tel:''},g);render(c);
+  const end=new Date(`${EV.data}T${EV.hora}:00-03:00`).getTime()+4*3600e3;
+  $('past').style.display=Date.now()>end?'block':'none';
+  if(Date.now()>end){$('btnConf').style.display='none';$('by').style.display='none'}}
+addEventListener('hashchange',route);
+fetch('evento.json?v='+Date.now()).then(r=>r.ok?r.json():{}).catch(()=>({})).then(j=>{EV=Object.assign({},DEF,j);route()});
 </script></body></html>
