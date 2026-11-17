@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
     if (req.method === 'POST') {
       let b = req.body; if (typeof b === 'string') b = JSON.parse(b || '{}');
       const s = v => String(v || '').trim().slice(0, 80);
-      const d = { n: s(b.n), por: s(b.por), tel: s(b.tel).replace(/\D/g, '') };
+      const d = { n: s(b.n), por: s(b.por), tel: s(b.tel).replace(/\D/g, ''), e: s(b.e) };
       if (!d.n || !d.por || !d.tel) return res.status(400).json({ error: 'Dados incompletos.' });
       for (let i = 0; i < 5; i++) {
         const c = code();
