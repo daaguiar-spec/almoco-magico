@@ -80,6 +80,7 @@ input,textarea{width:100%;padding:11px;border-radius:10px;border:1px solid #e8c4
 .out{word-break:break-all;font-size:12px;background:#000a;padding:10px;border-radius:8px;margin-top:10px;color:#e9d9b8;min-height:20px}
 .note{font-size:11.5px;color:#bba;line-height:1.5;margin-top:8px}
 .sum{font-size:14px;line-height:1.7;color:#f3e5c5}.sum b{color:var(--gold)}.past{background:#e8c46a22;border:1px solid var(--gold2);border-radius:12px;padding:12px;text-align:center;font-size:13px;color:#f3e5c5;margin:14px 0}
+.pv{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 10px;font-size:12.5px;padding:6px 10px;border-radius:8px;background:#ffffff0d;margin-bottom:4px;color:#f3e5c5}.pv .pe{color:var(--gold)}.pv .pe.no{color:#bba;font-style:italic}
 .list div{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:12px;padding:6px 0;border-bottom:1px solid #fff1}
 .list button{background:var(--gold);border:0;border-radius:6px;padding:5px 8px;font-size:11px;cursor:pointer}
 </style></head><body>
@@ -133,6 +134,7 @@ input,textarea{width:100%;padding:11px;border-radius:10px;border:1px solid #e8c4
   <div class="card"><h3>Convidados</h3>
     <div style="background:#e8c46a22;border:1px solid var(--gold2);border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.5;color:#f3e5c5;margin-bottom:6px">👥 Convide várias pessoas de uma vez. Escreva <b>um nome por linha</b> (aperte Enter para pular de linha). Cada convidado recebe o próprio link personalizado.<br><span style="display:block;margin-top:6px;color:#e8c46a">🏢 Quer incluir a empresa? Use um traço: <b>Nome - Empresa</b> (opcional)</span></div>
     <label>Nomes dos convidados</label><textarea id="gNomes" rows="5" placeholder="João Paulo - Construtora Alfa&#10;Ana Souza - Clínica Bem Estar&#10;Carlos Mendes"></textarea>
+    <div id="gPrev" style="margin-top:8px"></div>
     <div id="gCount" style="text-align:right;font-size:12px;color:var(--gold);margin-top:6px">0 convidados</div>
     <button class="btn main" id="gGo" style="animation:none">Gerar links</button>
     <div class="list" id="gList"></div>
@@ -185,7 +187,8 @@ function render(c){
 function esc(s){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
 $('pass').onclick=()=>{$('pass').classList.add('open');setTimeout(()=>{$('intro').style.display='none';$('main').style.display='block';window.scrollTo(0,0)},700)};
 let EV=Object.assign({},DEF);
-function cnt(){const n=$('gNomes').value.split('\n').filter(x=>x.trim()).length;$('gCount').textContent=n+(n===1?' convidado':' convidados');$('gGo').textContent=n>1?`Gerar ${n} links`:'Gerar link';return n}
+function parseL(l){const m=l.split(/\s+[-–—]\s+/);return{n:m[0].trim(),e:(m.slice(1).join(' - ')||'').trim()}}
+function cnt(){const ls=$('gNomes').value.split('\n').filter(x=>x.trim());const n=ls.length;$('gPrev').innerHTML=ls.map(l=>{const p=parseL(l);return `<div class="pv"><span>👤 ${esc(p.n)}</span>${p.e?`<span class="pe">🏢 ${esc(p.e)}</span>`:'<span class="pe no">sem empresa</span>'}</div>`}).join('');$('gCount').textContent=n+(n===1?' convidado':' convidados');$('gGo').textContent=n>1?`Gerar ${n} links`:'Gerar link';return n}
 $('gNomes').addEventListener('input',cnt);
 function gerador(){
   $('intro').style.display='none';$('main').style.display='none';$('admin').style.display='none';$('gerar').style.display='block';
@@ -198,7 +201,7 @@ function save(){store.set('am_consultor',cfg())}
 $('gGo').onclick=async()=>{save();const c=cfg();if(!c.por||!c.tel){$('gList').innerHTML='<p class="note" style="color:#ffb4a0">Preencha seu nome e WhatsApp antes de gerar.</p>';return}
   const base=location.origin+'/';$('gList').innerHTML='';
   const nomes=$('gNomes').value.split('\n').map(x=>x.trim()).filter(Boolean);$('gGo').disabled=true;$('gGo').textContent='Gerando…';
-  for(const linha of nomes){const m=linha.split(/\s+[-–—]\s+/);const n=m[0].trim(),e=(m.slice(1).join(' - ')||'').trim();let url=base+'#'+enc2(n,c.por,c.tel,e);try{const r=await fetch('/api/link',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({n,por:c.por,tel:c.tel,e})});if(r.ok){const j=await r.json();if(j.code)url=base+'#'+j.code}}catch(e){}const d=document.createElement('div');d.innerHTML=`<span>${esc(n)}${e?`<br><small style="opacity:.7">${esc(e)}</small>`:''}</span>`;
+  for(const linha of nomes){const {n,e}=parseL(linha);let url=base+'#'+enc2(n,c.por,c.tel,e);try{const r=await fetch('/api/link',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({n,por:c.por,tel:c.tel,e})});if(r.ok){const j=await r.json();if(j.code)url=base+'#'+j.code}}catch(e){}const d=document.createElement('div');d.innerHTML=`<span>${esc(n)}${e?`<br><small style="opacity:.7">${esc(e)}</small>`:''}</span>`;
     const w=document.createElement('a');w.textContent='WhatsApp';w.target='_blank';w.rel='noopener';w.style.cssText='color:#3a0a0c;background:#e8c46a;border-radius:6px;padding:5px 8px;font-size:11px;text-decoration:none';
     w.href='https://wa.me/?text='+encodeURIComponent(`${first(n)}, separei um Passaporte Cortesia com seu nome para o Almoço Mágico ✨ Abra aqui: ${url}`);
     const b=document.createElement('button');b.textContent='Copiar link';b.onclick=()=>{navigator.clipboard.writeText(url).then(()=>b.textContent='Copiado ✓').catch(()=>{b.textContent='Selecione abaixo';d.insertAdjacentHTML('afterend',`<div class="out">${url}</div>`)})};
