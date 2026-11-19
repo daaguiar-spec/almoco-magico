@@ -81,6 +81,7 @@ input,textarea{width:100%;padding:11px;border-radius:10px;border:1px solid #e8c4
 .note{font-size:11.5px;color:#bba;line-height:1.5;margin-top:8px}
 .sum{font-size:14px;line-height:1.7;color:#f3e5c5}.sum b{color:var(--gold)}.past{background:#e8c46a22;border:1px solid var(--gold2);border-radius:12px;padding:12px;text-align:center;font-size:13px;color:#f3e5c5;margin:14px 0}
 .pv{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 10px;font-size:12.5px;padding:6px 10px;border-radius:8px;background:#ffffff0d;margin-bottom:4px;color:#f3e5c5}.pv .pe{color:var(--gold)}.pv .pe.no{color:#bba;font-style:italic}
+#qrBox{display:none;position:fixed;inset:0;z-index:9;background:#000c;align-items:center;justify-content:center;padding:20px}.qrc{background:var(--cream);color:#3a0a0c;border-radius:20px;padding:22px 20px 10px;width:min(90vw,360px);text-align:center;border:3px solid var(--gold2)}.qt{font-family:Cinzel;font-weight:800;font-size:15px;color:var(--vin);margin-bottom:12px}#qrImg svg{width:100%;height:auto;display:block;border-radius:8px;background:#fff}.qn{font-family:'Great Vibes';font-size:34px;color:var(--vin);margin-top:10px;line-height:1.1}.qe{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#8a5a3a;min-height:4px}.qrc .btn.ghost{color:var(--vin);border-color:var(--vin);margin-top:12px}
 .list div{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:12px;padding:6px 0;border-bottom:1px solid #fff1}
 .list button{background:var(--gold);border:0;border-radius:6px;padding:5px 8px;font-size:11px;cursor:pointer}
 </style></head><body>
@@ -154,6 +155,8 @@ input,textarea{width:100%;padding:11px;border-radius:10px;border:1px solid #e8c4
   </div>
 </section>
 </div>
+<div id="qrBox" onclick="if(event.target===this)this.style.display='none'"><div class="qrc"><div class="qt">Aponte a câmera do celular</div><div id="qrImg"></div><div class="qn" id="qrName"></div><div class="qe" id="qrEmp"></div><button class="btn ghost" onclick="$('qrBox').style.display='none'">Fechar</button></div></div>
+<script src="qrcode.js"></script>
 <script>
 const DEF={ed:"5ª Edição",data:"2026-11-26",hora:"11:00",local:"Forneria Coriolano",end:"R. Osvaldo Cruz, 2786 - Dionísio Torres, Fortaleza - CE",por:"",tel:"",n:""};
 const $=id=>document.getElementById(id);
@@ -187,6 +190,7 @@ function render(c){
 function esc(s){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
 $('pass').onclick=()=>{$('pass').classList.add('open');setTimeout(()=>{$('intro').style.display='none';$('main').style.display='block';window.scrollTo(0,0)},700)};
 let EV=Object.assign({},DEF);
+function showQR(url,n,e){const q=qrcode(0,'M');q.addData(url);q.make();$('qrImg').innerHTML=q.createSvgTag({cellSize:8,margin:2,scalable:true});$('qrName').textContent=n;$('qrEmp').textContent=e||'';$('qrBox').style.display='flex'}
 function parseL(l){const m=l.split(/\s+[-–—]\s+/);return{n:m[0].trim(),e:(m.slice(1).join(' - ')||'').trim()}}
 function cnt(){const ls=$('gNomes').value.split('\n').filter(x=>x.trim());const n=ls.length;$('gPrev').innerHTML=ls.map(l=>{const p=parseL(l);return `<div class="pv"><span>👤 ${esc(p.n)}</span>${p.e?`<span class="pe">🏢 ${esc(p.e)}</span>`:'<span class="pe no">sem empresa</span>'}</div>`}).join('');$('gCount').textContent=n+(n===1?' convidado':' convidados');$('gGo').textContent=n>1?`Gerar ${n} links`:'Gerar link';return n}
 $('gNomes').addEventListener('input',cnt);
@@ -205,7 +209,7 @@ $('gGo').onclick=async()=>{save();const c=cfg();if(!c.por||!c.tel){$('gList').in
     const w=document.createElement('a');w.textContent='WhatsApp';w.target='_blank';w.rel='noopener';w.style.cssText='color:#3a0a0c;background:#e8c46a;border-radius:6px;padding:5px 8px;font-size:11px;text-decoration:none';
     w.href='https://wa.me/?text='+encodeURIComponent(`${first(n)}, separei um Passaporte Cortesia com seu nome para o Almoço Mágico ✨ Abra aqui: ${url}`);
     const b=document.createElement('button');b.textContent='Copiar link';b.onclick=()=>{navigator.clipboard.writeText(url).then(()=>b.textContent='Copiado ✓').catch(()=>{b.textContent='Selecione abaixo';d.insertAdjacentHTML('afterend',`<div class="out">${url}</div>`)})};
-    const g=document.createElement('span');g.style.display='flex';g.style.gap='6px';g.append(b,w);d.append(g);$('gList').append(d)}
+    const g=document.createElement('span');g.style.display='flex';g.style.gap='6px';const q=document.createElement('button');q.textContent='QR Code';q.onclick=()=>showQR(url,n,e);g.append(b,q,w);d.append(g);$('gList').append(d)}
   $('gGo').disabled=false;cnt()};
 function adminView(){['intro','main','gerar'].forEach(i=>$(i).style.display='none');$('admin').style.display='block';
   try{$('aPass').value=sessionStorage.getItem('am_pass')||''}catch(e){}
