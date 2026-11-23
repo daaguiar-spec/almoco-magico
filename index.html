@@ -82,6 +82,7 @@ input,textarea{width:100%;padding:11px;border-radius:10px;border:1px solid #e8c4
 .sum{font-size:14px;line-height:1.7;color:#f3e5c5}.sum b{color:var(--gold)}.past{background:#e8c46a22;border:1px solid var(--gold2);border-radius:12px;padding:12px;text-align:center;font-size:13px;color:#f3e5c5;margin:14px 0}
 .pv{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 10px;font-size:12.5px;padding:6px 10px;border-radius:8px;background:#ffffff0d;margin-bottom:4px;color:#f3e5c5}.pv .pe{color:var(--gold)}.pv .pe.no{color:#bba;font-style:italic}
 #qrBox{display:none;position:fixed;inset:0;z-index:9;background:#000c;align-items:center;justify-content:center;padding:20px}.qrc{background:var(--cream);color:#3a0a0c;border-radius:20px;padding:22px 20px 10px;width:min(90vw,360px);text-align:center;border:3px solid var(--gold2)}.qt{font-family:Cinzel;font-weight:800;font-size:15px;color:var(--vin);margin-bottom:12px}#qrImg svg{width:100%;height:auto;display:block;border-radius:8px;background:#fff}.qn{font-family:'Great Vibes';font-size:34px;color:var(--vin);margin-top:10px;line-height:1.1}.qe{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#8a5a3a;min-height:4px}.qrc .btn.ghost{color:var(--vin);border-color:var(--vin);margin-top:12px}
+.ctot{font-size:15px;color:#f3e5c5;margin:14px 0 8px}.ctot b{font-family:Cinzel;font-size:26px;color:var(--gold)}.cpor{display:inline-block;font-size:12px;border:1px solid #e8c46a55;border-radius:20px;padding:3px 10px;margin:0 6px 6px 0;color:#e9d9b8}.clist div{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:8px 0;border-bottom:1px solid #fff1}.clist small{opacity:.7;font-size:11px}.cby{text-align:right;color:var(--gold);font-size:12px}
 .list div{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:12px;padding:6px 0;border-bottom:1px solid #fff1}
 .list button{background:var(--gold);border:0;border-radius:6px;padding:5px 8px;font-size:11px;cursor:pointer}
 </style></head><body>
@@ -153,6 +154,12 @@ input,textarea{width:100%;padding:11px;border-radius:10px;border:1px solid #e8c4
     <button class="btn main" id="aSave" style="animation:none">Salvar</button>
     <p class="note center" id="aMsg"></p>
   </div>
+  <div class="card"><h3>Confirmados</h3>
+    <button class="btn main" id="cLoad" style="animation:none">Ver confirmados</button>
+    <div id="cSum"></div><div id="cList" class="clist"></div>
+    <button class="btn ghost" id="cCopy" style="display:none">Copiar lista</button>
+    <p class="note" id="cMsg"></p>
+  </div>
 </section>
 </div>
 <div id="qrBox" onclick="if(event.target===this)this.style.display='none'"><div class="qrc"><div class="qt">Aponte a câmera do celular</div><div id="qrImg"></div><div class="qn" id="qrName"></div><div class="qe" id="qrEmp"></div><button class="btn ghost" onclick="$('qrBox').style.display='none'">Fechar</button></div></div>
@@ -183,7 +190,7 @@ function render(c){
   const msg=`Olá! Aqui é ${c.n||'[seu nome]'}${c.e?', da '+c.e+',':''} e confirmo minha presença no Almoço Mágico (${c.ed}), dia ${fmtData(c.data).split(' ·')[0]} às ${c.hora.replace(':','h')}. ✨`;
   $('btnConf').href=(full?`https://wa.me/${full}`:'https://wa.me/')+'?text='+encodeURIComponent(msg);
   $('by').textContent=c.por?`A confirmação vai direto para o WhatsApp de ${c.por}${tel?' ('+c.tel+')':''}.`:'';
-  $('btnConf').onclick=()=>{$('tkName').textContent=c.n||'Convidado(a)';$('tkEmp').textContent=c.e||'';$('tkInfo').textContent=`${c.ed.toUpperCase()} · ${fmtData(c.data).split(' ·')[0].toUpperCase()} · ${c.hora.replace(':','H')}`;$('ticket').style.display='block';setTimeout(()=>$('ticket').scrollIntoView({behavior:'smooth'}),300)};
+  $('btnConf').onclick=()=>{try{if(c.n)fetch('/api/confirm',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json'},body:JSON.stringify({id:c.id||'',n:c.n,e:c.e||'',por:c.por||'',ed:c.ed})}).catch(()=>{})}catch(err){}$('tkName').textContent=c.n||'Convidado(a)';$('tkEmp').textContent=c.e||'';$('tkInfo').textContent=`${c.ed.toUpperCase()} · ${fmtData(c.data).split(' ·')[0].toUpperCase()} · ${c.hora.replace(':','H')}`;$('ticket').style.display='block';setTimeout(()=>$('ticket').scrollIntoView({behavior:'smooth'}),300)};
   clearInterval(window._t);const target=new Date(`${c.data}T${c.hora}:00-03:00`);
   const tick=()=>{let s=Math.max(0,(target-new Date())/1000|0);$('dd').textContent=s/86400|0;$('hh').textContent=(s%86400)/3600|0;$('mm').textContent=(s%3600)/60|0;$('ss').textContent=s%60};tick();window._t=setInterval(tick,1000);
 }
@@ -214,6 +221,15 @@ $('gGo').onclick=async()=>{save();const c=cfg();if(!c.por||!c.tel){$('gList').in
 function adminView(){['intro','main','gerar'].forEach(i=>$(i).style.display='none');$('admin').style.display='block';
   try{$('aPass').value=sessionStorage.getItem('am_pass')||''}catch(e){}
   $('aEd').value=EV.ed;$('aData').value=EV.data;$('aHora').value=EV.hora;$('aLocal').value=EV.local;$('aEnd').value=EV.end;}
+$('cLoad').onclick=async()=>{const m=$('cMsg');m.style.color='#e9d9b8';m.textContent='Carregando…';
+  try{const r=await fetch('/api/confirm?ed='+encodeURIComponent(EV.ed),{headers:{'x-admin-password':$('aPass').value}});const j=await r.json();if(!r.ok)throw new Error(j.error||'Erro');
+    try{sessionStorage.setItem('am_pass',$('aPass').value)}catch(e){}
+    m.textContent='';const por={};j.forEach(x=>{const k=x.por||'Sem consultor';por[k]=(por[k]||0)+1});
+    $('cSum').innerHTML=`<div class="ctot"><b>${j.length}</b> ${j.length===1?'confirmado':'confirmados'} · ${esc(EV.ed)}</div>`+Object.entries(por).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<span class="cpor">${esc(k)}: <b>${v}</b></span>`).join('');
+    $('cList').innerHTML=j.map((x,i)=>`<div><span><b>${i+1}. ${esc(x.n)}</b>${x.e?`<br><small>${esc(x.e)}</small>`:''}</span><span class="cby">${esc(x.por||'')}<br><small>${new Date(x.em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</small></span></div>`).join('')||'<p class="note">Nenhuma confirmação ainda.</p>';
+    $('cCopy').style.display=j.length?'block':'none';
+    $('cCopy').onclick=()=>{const txt='Confirmados — Almoço Mágico ('+EV.ed+')\n'+j.map((x,i)=>`${i+1}. ${x.n}${x.e?' — '+x.e:''} (consultor: ${x.por||'-'})`).join('\n');navigator.clipboard.writeText(txt).then(()=>$('cCopy').textContent='Copiado ✓').catch(()=>{m.textContent=txt})};
+  }catch(e){m.style.color='#ffb4a0';m.textContent=e.message}};
 $('aSave').onclick=async()=>{const m=$('aMsg');m.style.color='#e9d9b8';m.textContent='Salvando…';
   const body={ed:$('aEd').value,data:$('aData').value,hora:$('aHora').value,local:$('aLocal').value,end:$('aEnd').value};
   try{const r=await fetch('/api/evento',{method:'POST',headers:{'Content-Type':'application/json','x-admin-password':$('aPass').value},body:JSON.stringify(body)});
@@ -223,7 +239,7 @@ $('aSave').onclick=async()=>{const m=$('aMsg');m.style.color='#e9d9b8';m.textCon
   }catch(e){m.style.color='#ffb4a0';m.textContent=e.message}};
 async function route(){const h=location.hash.slice(1);if(h==='admin')return adminView();$('admin').style.display='none';
   if(h==='consultor'||h==='gerar')return gerador();
-  let g={};if(h.startsWith('c-')){const o=dec(h.slice(2));if(o)g={n:o.n||'',por:o.por||'',tel:o.tel||'',e:''}}else if(/^[A-Za-z0-9]{5}$/.test(h)){try{const r=await fetch('/api/link?c='+h);if(r.ok)g=await r.json()}catch(e){}}else if(h){const o=dec2(h);if(o)g=o}
+  let g={};if(h.startsWith('c-')){const o=dec(h.slice(2));if(o)g={n:o.n||'',por:o.por||'',tel:o.tel||'',e:''}}else if(/^[A-Za-z0-9]{5}$/.test(h)){try{const r=await fetch('/api/link?c='+h);if(r.ok){g=await r.json();g.id=h}}catch(e){}}else if(h){const o=dec2(h);if(o)g=o}
   const c=Object.assign({},EV,{n:'',por:'',tel:'',e:''},g);render(c);
   const end=new Date(`${EV.data}T${EV.hora}:00-03:00`).getTime()+4*3600e3;
   $('past').style.display=Date.now()>end?'block':'none';
